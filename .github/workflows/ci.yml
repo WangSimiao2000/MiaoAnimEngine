@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  format:
+    name: clang-format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format-14
+
+      - name: Check formatting
+        run: |
+          files=$(find include src -name '*.h' -o -name '*.cpp')
+          echo "Checking: $files"
+          clang-format-14 --dry-run --Werror $files
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build
+
+      - name: Build
+        run: cmake --build build

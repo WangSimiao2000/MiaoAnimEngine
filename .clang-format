@@ -1,0 +1,12 @@
+---
+# Based on Google style, adjusted to a 4-space indent.
+BasedOnStyle: Google
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 100
+PointerAlignment: Left
+Standard: c++17
+# Keep short functions expanded across multiple lines instead of collapsing
+# them onto a single line.
+AllowShortFunctionsOnASingleLine: Empty
+---
