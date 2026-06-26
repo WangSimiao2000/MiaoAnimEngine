@@ -18,18 +18,21 @@ jobs:
 
       - name: Check formatting
         run: |
-          files=$(find include src -name '*.h' -o -name '*.cpp')
+          files=$(find include src tests \( -name '*.h' -o -name '*.cpp' \) -not -name 'doctest.h')
           echo "Checking: $files"
           clang-format-14 --dry-run --Werror $files
 
-  build:
-    name: build
+  build-and-test:
+    name: build & test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake -S . -B build
+        run: cmake -S . -B build -DANIENGINE_BUILD_TESTS=ON
 
       - name: Build
         run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
