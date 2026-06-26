@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(AniEngine
+project(AnimEngine
     VERSION 0.1.0
     DESCRIPTION "A lightweight C++ runtime focused on real-time animation systems"
     LANGUAGES CXX
@@ -21,19 +21,19 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # ---- Options ----
-option(ANIENGINE_BUILD_TESTS "Build unit tests" OFF)
+option(ANIMENGINE_BUILD_TESTS "Build unit tests" OFF)
 
 # ---- Library target ----
 # GLOB is convenient while bootstrapping; switch to an explicit source list
 # once the file layout stabilizes.
-file(GLOB_RECURSE ANIENGINE_SOURCES CONFIGURE_DEPENDS
+file(GLOB_RECURSE ANIMENGINE_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-add_library(aniengine ${ANIENGINE_SOURCES})
-add_library(AniEngine::aniengine ALIAS aniengine)
+add_library(animengine ${ANIMENGINE_SOURCES})
+add_library(AnimEngine::animengine ALIAS animengine)
 
-target_include_directories(aniengine
+target_include_directories(animengine
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
@@ -41,19 +41,19 @@ target_include_directories(aniengine
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_compile_features(aniengine PUBLIC cxx_std_17)
+target_compile_features(animengine PUBLIC cxx_std_17)
 
 # Warnings plus a single fixed optimization profile: -O2 with debug symbols.
 # This keeps the build fast while remaining debuggable, regardless of any
 # CMAKE_BUILD_TYPE the caller might set.
 if(MSVC)
-    target_compile_options(aniengine PRIVATE /W4 /O2 /Zi)
+    target_compile_options(animengine PRIVATE /W4 /O2 /Zi)
 else()
-    target_compile_options(aniengine PRIVATE -Wall -Wextra -Wpedantic -O2 -g)
+    target_compile_options(animengine PRIVATE -Wall -Wextra -Wpedantic -O2 -g)
 endif()
 
 # ---- Subdirectories ----
-if(ANIENGINE_BUILD_TESTS)
+if(ANIMENGINE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()

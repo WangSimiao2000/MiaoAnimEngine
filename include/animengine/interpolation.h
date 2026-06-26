@@ -1,6 +1,6 @@
 #pragma once
 
-namespace aniengine {
+namespace animengine {
 /**
  * Linearly interpolates between two values.
  *
@@ -14,4 +14,4 @@ namespace aniengine {
  */
 float linear(float start, float end, float t);
 
-}  // namespace aniengine
+}  // namespace animengine

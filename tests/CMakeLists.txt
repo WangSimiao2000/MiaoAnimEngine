@@ -4,8 +4,8 @@
 # automatically -- no need to edit this file.
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-add_executable(aniengine_tests ${TEST_SOURCES})
-target_include_directories(aniengine_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(aniengine_tests PRIVATE aniengine)
+add_executable(animengine_tests ${TEST_SOURCES})
+target_include_directories(animengine_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(animengine_tests PRIVATE animengine)
 
-add_test(NAME unit COMMAND aniengine_tests)
+add_test(NAME unit COMMAND animengine_tests)

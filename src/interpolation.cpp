@@ -1,7 +1,7 @@
-#include "aniengine/interpolation.h"
+#include "animengine/interpolation.h"
 
-namespace aniengine {
+namespace animengine {
 float linear(float start, float end, float t) {
     return start + t * (end - start);
 }
-}  // namespace aniengine
+}  // namespace animengine
