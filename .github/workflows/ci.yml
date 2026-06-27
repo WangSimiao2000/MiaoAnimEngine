@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake -S . -B build -DANIENGINE_BUILD_TESTS=ON
+        run: cmake -S . -B build -DANIMENGINE_BUILD_TESTS=ON
 
       - name: Build
         run: cmake --build build

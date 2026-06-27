@@ -43,13 +43,12 @@ target_include_directories(animengine
 
 target_compile_features(animengine PUBLIC cxx_std_17)
 
-# Warnings plus a single fixed optimization profile: -O2 with debug symbols.
-# This keeps the build fast while remaining debuggable, regardless of any
-# CMAKE_BUILD_TYPE the caller might set.
+# Keep optimization/debug settings under the control of the selected CMake
+# configuration or the parent project that embeds this library.
 if(MSVC)
-    target_compile_options(animengine PRIVATE /W4 /O2 /Zi)
+    target_compile_options(animengine PRIVATE /W4)
 else()
-    target_compile_options(animengine PRIVATE -Wall -Wextra -Wpedantic -O2 -g)
+    target_compile_options(animengine PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 # ---- Subdirectories ----
