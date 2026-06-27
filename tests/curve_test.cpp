@@ -3,7 +3,7 @@
 #include "doctest.h"
 
 using animengine::Curve;
-using animengine::Interpolation;
+using animengine::Easing;
 
 TEST_CASE("empty curve returns the default value") {
     Curve curve;
@@ -68,7 +68,7 @@ TEST_CASE("interpolates across multiple segments regardless of insert order") {
 
 TEST_CASE("step interpolation holds the left keyframe's value across the segment") {
     Curve curve;
-    curve.addKeyframe(0.0f, 0.0f, Interpolation::Step);
+    curve.addKeyframe(0.0f, 0.0f, Easing::StepEnd);
     curve.addKeyframe(2.0f, 20.0f);  // last keyframe: interp ignored
 
     CHECK(curve.evaluate(0.0f) == doctest::Approx(0.0f));   // on the left keyframe
@@ -80,8 +80,8 @@ TEST_CASE("step interpolation holds the left keyframe's value across the segment
 
 TEST_CASE("step mode is per-segment, decided by the left keyframe") {
     Curve curve;
-    curve.addKeyframe(0.0f, 0.0f, Interpolation::Linear);  // segment [0,2) interpolates
-    curve.addKeyframe(2.0f, 10.0f, Interpolation::Step);   // segment [2,4) holds
+    curve.addKeyframe(0.0f, 0.0f, Easing::Linear);    // segment [0,2) interpolates
+    curve.addKeyframe(2.0f, 10.0f, Easing::StepEnd);  // segment [2,4) holds
     curve.addKeyframe(4.0f, 20.0f);
 
     CHECK(curve.evaluate(1.0f) == doctest::Approx(5.0f));   // linear segment, midpoint
@@ -98,10 +98,55 @@ TEST_CASE("interp defaults to linear, preserving the original behaviour") {
 
 TEST_CASE("overwriting a keyframe also updates its interpolation mode") {
     Curve curve;
-    curve.addKeyframe(0.0f, 0.0f, Interpolation::Linear);
+    curve.addKeyframe(0.0f, 0.0f, Easing::Linear);
     curve.addKeyframe(2.0f, 20.0f);
     CHECK(curve.evaluate(1.0f) == doctest::Approx(10.0f));  // linear before overwrite
 
-    curve.addKeyframe(0.0f, 0.0f, Interpolation::Step);    // switch segment to step
+    curve.addKeyframe(0.0f, 0.0f, Easing::StepEnd);        // switch segment to step
     CHECK(curve.evaluate(1.0f) == doctest::Approx(0.0f));  // now holds prev value
+}
+
+TEST_CASE("easeIn interpolation accelerates from start") {
+    Curve curve;
+    curve.addKeyframe(0.0f, 0.0f, Easing::EaseIn);
+    curve.addKeyframe(1.0f, 1.0f);
+
+    CHECK(curve.evaluate(0.0f) == doctest::Approx(0.0f));
+    CHECK(curve.evaluate(0.5f) == doctest::Approx(0.25f));  // t² at midpoint
+    CHECK(curve.evaluate(1.0f) == doctest::Approx(1.0f));
+}
+
+TEST_CASE("easeOut interpolation decelerates to end") {
+    Curve curve;
+    curve.addKeyframe(0.0f, 0.0f, Easing::EaseOut);
+    curve.addKeyframe(1.0f, 1.0f);
+
+    CHECK(curve.evaluate(0.0f) == doctest::Approx(0.0f));
+    CHECK(curve.evaluate(0.5f) == doctest::Approx(0.75f));  // 1-(1-t)²
+    CHECK(curve.evaluate(1.0f) == doctest::Approx(1.0f));
+}
+
+TEST_CASE("easeInOut interpolation is symmetric") {
+    Curve curve;
+    curve.addKeyframe(0.0f, 0.0f, Easing::EaseInOut);
+    curve.addKeyframe(1.0f, 1.0f);
+
+    CHECK(curve.evaluate(0.0f) == doctest::Approx(0.0f));
+    CHECK(curve.evaluate(0.25f) == doctest::Approx(0.125f));  // first half: easeIn
+    CHECK(curve.evaluate(0.5f) == doctest::Approx(0.5f));
+    CHECK(curve.evaluate(0.75f) == doctest::Approx(0.875f));  // second half: easeOut
+    CHECK(curve.evaluate(1.0f) == doctest::Approx(1.0f));
+}
+
+TEST_CASE("different easing modes on different segments") {
+    Curve curve;
+    curve.addKeyframe(0.0f, 0.0f, Easing::EaseIn);
+    curve.addKeyframe(1.0f, 10.0f, Easing::EaseOut);
+    curve.addKeyframe(2.0f, 20.0f);
+
+    // First segment [0,1]: EaseIn
+    CHECK(curve.evaluate(0.5f) == doctest::Approx(2.5f));  // 0.5² * 10 = 2.5
+
+    // Second segment [1,2]: EaseOut
+    CHECK(curve.evaluate(1.5f) == doctest::Approx(17.5f));  // 10 + 0.75*10 = 17.5
 }

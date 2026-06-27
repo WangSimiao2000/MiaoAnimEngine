@@ -1,0 +1,28 @@
+#!/bin/sh
+# Pre-commit hook: check code formatting with clang-format
+
+set -e
+
+# Find all C/C++ files to check
+FILES=$(git diff --cached --name-only --diff-filter=ACM \
+    | grep -E '\.(cpp|h|hpp|c|cc)$' || true)
+
+if [ -z "$FILES" ]; then
+    exit 0
+fi
+
+echo "Checking code formatting..."
+
+# Check each file
+for FILE in $FILES; do
+    if [ -f "$FILE" ]; then
+        DIFF=$(clang-format --dry-run --Werror "$FILE" 2>&1) || {
+            echo "ERROR: $FILE is not formatted correctly."
+            echo "Run: clang-format -i $FILE"
+            exit 1
+        }
+    fi
+done
+
+echo "All files are formatted correctly."
+exit 0

@@ -2,19 +2,19 @@
 
 #include <algorithm>
 
-#include "animengine/interpolation.h"
+#include "animengine/easing.h"
 
 namespace animengine {
 
-void Curve::addKeyframe(float time, float value, Interpolation interp) {
+void Curve::addKeyframe(float time, float value, Easing easing) {
     const auto it = std::lower_bound(_keyframes.begin(), _keyframes.end(), time,
                                      [](const Keyframe& kf, float t) { return kf.time < t; });
     if (it != _keyframes.end() && it->time == time) {
         it->value = value;
-        it->interp = interp;
+        it->easing = easing;
         return;
     }
-    _keyframes.insert(it, Keyframe{time, value, interp});
+    _keyframes.insert(it, Keyframe{time, value, easing});
 }
 
 float Curve::evaluate(float time) const {
@@ -32,20 +32,24 @@ float Curve::evaluate(float time) const {
                                        [](float t, const Keyframe& kf) { return t < kf.time; });
     const auto prev = next - 1;
 
-    // The segment [prev, next) is interpolated according to the left
-    // keyframe's mode.
-    // TODO(curve): when upgrading to the advanced (tangent-based) model, add a
-    // Cubic case here that calls hermite(prev->value, prev->outTangent,
-    // next->value, next->inTangent, t) -- see the note in curve.h.
-    switch (prev->interp) {
-        case Interpolation::Step:
-            return prev->value;
-        case Interpolation::Linear:
-            break;
-    }
-
     const float span = next->time - prev->time;
     const float t = (time - prev->time) / span;
+
+    switch (prev->easing) {
+        case Easing::StepStart:
+            return stepStart(prev->value, next->value, t);
+        case Easing::StepEnd:
+            return stepEnd(prev->value, next->value, t);
+        case Easing::Linear:
+            return linear(prev->value, next->value, t);
+        case Easing::EaseIn:
+            return easeIn(prev->value, next->value, t);
+        case Easing::EaseOut:
+            return easeOut(prev->value, next->value, t);
+        case Easing::EaseInOut:
+            return easeInOut(prev->value, next->value, t);
+    }
+
     return linear(prev->value, next->value, t);
 }
 
