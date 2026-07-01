@@ -2,10 +2,10 @@
 
 namespace animengine {
 
-Tween::Tween(float from, float to, float duration, Easing easing)
+Tween::Tween(const float from, const float to, const float duration, const Easing easing)
     : _from(from), _to(to), _duration(duration), _easing(easing) {}
 
-void Tween::update(float deltaTime) {
+void Tween::update(const float deltaTime) {
     if (deltaTime <= 0.0f || isFinished()) {
         return;
     }

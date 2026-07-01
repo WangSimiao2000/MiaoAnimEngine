@@ -6,9 +6,9 @@
 
 namespace animengine {
 
-void Curve::addKeyframe(float time, float value, Easing easing) {
+void Curve::addKeyframe(const float time, const float value, const Easing easing) {
     const auto it = std::lower_bound(_keyframes.begin(), _keyframes.end(), time,
-                                     [](const Keyframe& kf, float t) { return kf.time < t; });
+                                     [](const Keyframe& kf, const float t) { return kf.time < t; });
     if (it != _keyframes.end() && it->time == time) {
         it->value = value;
         it->easing = easing;
@@ -17,7 +17,7 @@ void Curve::addKeyframe(float time, float value, Easing easing) {
     _keyframes.insert(it, Keyframe{time, value, easing});
 }
 
-float Curve::evaluate(float time) const {
+float Curve::evaluate(const float time) const {
     if (_keyframes.empty()) {
         return 0.0f;
     }
@@ -28,8 +28,9 @@ float Curve::evaluate(float time) const {
         return _keyframes.back().value;
     }
 
-    const auto next = std::upper_bound(_keyframes.begin(), _keyframes.end(), time,
-                                       [](float t, const Keyframe& kf) { return t < kf.time; });
+    const auto next =
+        std::upper_bound(_keyframes.begin(), _keyframes.end(), time,
+                         [](const float t, const Keyframe& kf) { return t < kf.time; });
     const auto prev = next - 1;
 
     const float span = next->time - prev->time;

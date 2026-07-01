@@ -7,9 +7,9 @@ public:
     Spring(float duration, float bounce, float initialValue = 0.0f, float initialVelocity = 0.0f);
     void update(float dt);
     void setTarget(float target);
-    float value() const;
-    float velocity() const;
-    bool isSettled() const;
+    [[nodiscard]] float value() const;
+    [[nodiscard]] float velocity() const;
+    [[nodiscard]] bool isSettled() const;
     void snapTo(float value);
 
 private:

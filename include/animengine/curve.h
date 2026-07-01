@@ -26,15 +26,15 @@ namespace animengine {
  */
 
 struct Keyframe {
-    float time;
-    float value;
+    float time{};
+    float value{};
     Easing easing = Easing::Linear;
 };
 
 class Curve {
 public:
     void addKeyframe(float time, float value, Easing easing = Easing::Linear);
-    float evaluate(float time) const;
+    [[nodiscard]] float evaluate(float time) const;
 
 private:
     std::vector<Keyframe> _keyframes;

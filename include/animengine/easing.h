@@ -11,11 +11,11 @@ enum class Easing {
     EaseInOut,
 };
 
-float stepStart(float start, float end, float t);
-float stepEnd(float start, float end, float t);
-float linear(float start, float end, float t);
-float easeIn(float start, float end, float t);
-float easeOut(float start, float end, float t);
-float easeInOut(float start, float end, float t);
+[[nodiscard]] float stepStart(float start, float end, float t);
+[[nodiscard]] float stepEnd(float start, float end, float t);
+[[nodiscard]] float linear(float start, float end, float t);
+[[nodiscard]] float easeIn(float start, float end, float t);
+[[nodiscard]] float easeOut(float start, float end, float t);
+[[nodiscard]] float easeInOut(float start, float end, float t);
 
 }  // namespace animengine

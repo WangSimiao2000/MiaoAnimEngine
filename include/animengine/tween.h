@@ -11,11 +11,11 @@ public:
     void update(float deltaTime);
     void reset();
 
-    float value() const;
-    float elapsed() const;
-    float duration() const;
+    [[nodiscard]] float value() const;
+    [[nodiscard]] float elapsed() const;
+    [[nodiscard]] float duration() const;
 
-    bool isFinished() const;
+    [[nodiscard]] bool isFinished() const;
 
 private:
     float _from, _to, _duration;
