@@ -112,3 +112,34 @@ TEST_CASE("stepEnd tween holds start value until it finishes") {
     tween.update(0.5f);
     CHECK(tween.value() == doctest::Approx(10.0f));
 }
+
+TEST_CASE("paused tween ignores updates") {
+    Tween tween(0.0f, 10.0f, 1.0f);
+
+    tween.pause();
+    tween.update(0.5f);
+
+    CHECK(tween.isPaused());
+    CHECK(tween.elapsed() == doctest::Approx(0.0f));
+    CHECK(tween.value() == doctest::Approx(0.0f));
+    CHECK_FALSE(tween.isFinished());
+}
+
+TEST_CASE("resume re-enables updates") {
+    Tween tween(0.0f, 10.0f, 1.0f);
+
+    tween.pause();
+    tween.update(0.5f);
+    tween.resume();
+    tween.update(0.5f);
+
+    CHECK_FALSE(tween.isPaused());
+    CHECK(tween.elapsed() == doctest::Approx(0.5f));
+    CHECK(tween.value() == doctest::Approx(5.0f));
+}
+
+TEST_CASE("tween is not paused by default") {
+    Tween tween(0.0f, 10.0f, 1.0f);
+
+    CHECK_FALSE(tween.isPaused());
+}

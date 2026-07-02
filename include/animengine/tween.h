@@ -12,6 +12,10 @@ public:
         : _from(from), _to(to), _duration(duration), _easing(easing) {}
 
     void update(float deltaTime) {
+        if (_paused) {
+            return;
+        }
+
         if (deltaTime <= 0.0f || isFinished()) {
             return;
         }
@@ -48,11 +52,24 @@ public:
         return _duration <= 0.0f || _elapsed >= _duration;
     }
 
+    void pause() {
+        _paused = true;
+    }
+
+    void resume() {
+        _paused = false;
+    }
+
+    [[nodiscard]] bool isPaused() const {
+        return _paused;
+    }
+
 private:
     T _from, _to;
     float _duration;
     float _elapsed = 0.0f;
     Easing _easing = Easing::Linear;
+    bool _paused = false;
 };
 
 using TweenFloat = Tween<float>;
