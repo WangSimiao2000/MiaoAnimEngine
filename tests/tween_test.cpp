@@ -1,9 +1,17 @@
 #include "animengine/tween.h"
 
+#include <type_traits>
+
 #include "doctest.h"
 
 using animengine::Easing;
 using animengine::Tween;
+
+// Contract: a bare `Tween(float args)` must deduce to Tween<float> via CTAD.
+// This guards the zero-friction API against future template changes that would
+// break class template argument deduction.
+static_assert(std::is_same_v<decltype(Tween(0.0f, 1.0f, 1.0f)), Tween<float>>,
+              "CTAD for Tween should deduce Tween<float>");
 
 TEST_CASE("tween starts at the from value") {
     Tween tween(0.0f, 10.0f, 1.0f);
