@@ -1,43 +1,65 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "easing.h"
+#include "interpolation.h"
+#include "math.h"
 
 namespace animengine {
 
-/**
- * How a segment leaving a keyframe is interpolated.
- *
- * The mode is owned by the *left* keyframe of a segment: a keyframe's interp
- * governs the half-open interval [thisKeyframe.time, nextKeyframe.time). The
- * last keyframe's interp is therefore never read (it has no segment to its
- * right) -- this is intentional, see addKeyframe().
- *
- * TODO(curve): This per-keyframe enum is the most basic model. High-end
- * engines (Unity AnimationCurve, Unreal FRichCurve, Blender F-Curves, glTF
- * CUBICSPLINE) instead store per-keyframe in/out tangents and evaluate with a
- * cubic Hermite/Bezier spline, plus a tangent mode (Auto/Flat/Free/Weighted).
- * When we need editable curve handles or C1-continuous smoothing, upgrade to:
- *   - add Cubic to this enum,
- *   - add inTangent/outTangent (and optionally weights) to Keyframe,
- *   - add a hermite(p0, m0, p1, m1, t) primitive in interpolation.h,
- *   - recompute Auto tangents from neighbours after addKeyframe.
- */
-
+template <class T = float>
 struct Keyframe {
     float time{};
-    float value{};
+    T value{};
     Easing easing = Easing::Linear;
 };
 
+template <class T = float>
 class Curve {
 public:
-    void addKeyframe(float time, float value, Easing easing = Easing::Linear);
-    [[nodiscard]] float evaluate(float time) const;
+    void addKeyframe(float time, T value, Easing easing = Easing::Linear) {
+        const auto it =
+            std::lower_bound(_keyframes.begin(), _keyframes.end(), time,
+                             [](const Keyframe<T>& kf, float t) { return kf.time < t; });
+        if (it != _keyframes.end() && it->time == time) {
+            it->value = value;
+            it->easing = easing;
+            return;
+        }
+        _keyframes.insert(it, Keyframe<T>{time, value, easing});
+    }
+
+    [[nodiscard]] T evaluate(float time) const {
+        if (_keyframes.empty()) {
+            return T{};
+        }
+        if (time <= _keyframes.front().time) {
+            return _keyframes.front().value;
+        }
+        if (time >= _keyframes.back().time) {
+            return _keyframes.back().value;
+        }
+
+        const auto next =
+            std::upper_bound(_keyframes.begin(), _keyframes.end(), time,
+                             [](float t, const Keyframe<T>& kf) { return t < kf.time; });
+        const auto prev = next - 1;
+
+        const float span = next->time - prev->time;
+        const float t = (time - prev->time) / span;
+
+        return ease(prev->value, next->value, t, prev->easing);
+    }
 
 private:
-    std::vector<Keyframe> _keyframes;
+    std::vector<Keyframe<T>> _keyframes;
 };
+
+using CurveFloat = Curve<float>;
+using CurveVec3 = Curve<Vec3>;
+using CurveColor = Curve<Color>;
+using CurveQuat = Curve<Quat>;
 
 }  // namespace animengine

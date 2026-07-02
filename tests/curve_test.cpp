@@ -2,7 +2,7 @@
 
 #include "doctest.h"
 
-using animengine::Curve;
+using Curve = animengine::Curve<float>;
 using animengine::Easing;
 
 TEST_CASE("empty curve returns the default value") {
