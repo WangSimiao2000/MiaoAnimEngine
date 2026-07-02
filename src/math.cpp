@@ -25,8 +25,8 @@ Quat lerp(const Quat& a, Quat b, const float t) {
     }
 
     if (dot > 0.9995f) {
-        return normalize(Quat{a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t,
-                              a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t});
+        return normalize(Quat{a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t,
+                              a.w + (b.w - a.w) * t});
     }
 
     const float theta0 = std::acos(dot);

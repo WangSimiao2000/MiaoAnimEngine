@@ -1,8 +1,7 @@
-#include "animengine/math.h"
-
 #include <cmath>
 
 #include "animengine/interpolation.h"
+#include "animengine/math.h"
 #include "doctest.h"
 
 using animengine::lerp;
@@ -15,7 +14,9 @@ constexpr float kPi = 3.14159265358979323846f;
 Quat rotZ(float angleRad) {
     return Quat{0.0f, 0.0f, std::sin(angleRad * 0.5f), std::cos(angleRad * 0.5f)};
 }
-float len2(const Quat& q) { return q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w; }
+float len2(const Quat& q) {
+    return q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
+}
 }  // namespace
 
 TEST_CASE("slerp returns the endpoints") {

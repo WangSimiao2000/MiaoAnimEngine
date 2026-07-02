@@ -1,8 +1,7 @@
-#include "animengine/tween.h"
-
 #include <cmath>
 
 #include "animengine/math.h"
+#include "animengine/tween.h"
 #include "doctest.h"
 
 using animengine::Quat;

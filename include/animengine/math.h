@@ -38,6 +38,7 @@ struct Quat {
     float x{}, y{}, z{}, w{1.0f};
 };
 
-[[nodiscard]] Quat lerp(const Quat& a, Quat b, float t);  // slerp (b is by value: it may be negated for the shortest arc)
+[[nodiscard]] Quat lerp(const Quat& a, Quat b,
+                        float t);  // slerp (b is by value: it may be negated for the shortest arc)
 
 }  // namespace animengine
