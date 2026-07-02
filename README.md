@@ -8,11 +8,17 @@ See [AnimEngineDemo](https://github.com/WangSimiao2000/AnimEngineDemo) for runna
 
 ### Implemented
 
-- Keyframe Interpolation
-- Curve Evaluation
 - Easing Functions (StepStart, StepEnd, Linear, EaseIn, EaseOut, EaseInOut)
-- Tween (single-value from→to over a duration, with easing)
-- Spring (physics-based, interruptible / re-targetable with velocity continuity)
+- Value types & interpolation: `Vec3`, `Color`, `Quat`, with a generic `lerp<T>`
+  (quaternions interpolate via slerp)
+- Keyframe `Curve<T>` (sorted keyframes, per-segment easing, range clamping)
+- `Tween<T>` (value from→to over a duration, with easing)
+- `Spring<T>` (physics-based, interruptible / re-targetable with velocity
+  continuity; scalars & vectors)
+
+All of `Tween` / `Curve` / `Spring` are templated over the value type — they
+drive `float`, `Vec3`, `Color`, and (Tween/Curve) `Quat`, with `float` as the
+CTAD default plus aliases like `TweenFloat` / `SpringVec3`.
 
 ### Planned
 

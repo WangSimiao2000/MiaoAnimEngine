@@ -6,43 +6,57 @@ engines (think DOTween, GSAP, Framer Motion, SwiftUI animations).
 
 ## Current state
 
-AnimEngine is currently an **easing-math + single-value tween/spring** library
-— a solid foundation, but only the lowest layer of a real animation engine.
+AnimEngine is currently an **easing-math + multi-value tween/curve/spring**
+library — a solid foundation, but still only the lower layers of a real
+animation engine.
 
 Implemented:
 
 - **Easing**: 6 functions — `StepStart`, `StepEnd`, `Linear`, and quadratic
-  `EaseIn` / `EaseOut` / `EaseInOut`.
-- **Curve**: keyframe-based curve. Keyframes are kept sorted by time, values are
-  clamped outside the keyframe range, and each segment is interpolated according
-  to its *left* keyframe's easing mode (linear / step today).
-- **Tween**: a single `float` from→to over a duration, with easing,
+  `EaseIn` / `EaseOut` / `EaseInOut`. The reshaping is split from interpolation
+  (`easeShape` in `easing.h`, `lerp`/`ease` in `interpolation.h`).
+- **Value types + interpolation**: built-in `Vec3`, `Color`, `Quat`, plus a
+  generic `lerp<T>` customization point (default component-wise; `Quat`
+  overloaded to **slerp** — shortest-arc, unit-length-preserving).
+- **Curve**: `Curve<T>` keyframe-based curve. Keyframes are kept sorted by time,
+  values are clamped outside the keyframe range, and each segment is
+  interpolated according to its *left* keyframe's easing mode (linear / step).
+- **Tween**: `Tween<T>` — a single value from→to over a duration, with easing,
   `update(dt)`, `reset()`, `value()`, `elapsed()`, `duration()`, `isFinished()`.
-- **Spring**: physics-based single-`float` animation (stiffness/damping derived
-  from a duration + bounce), **interruptible** — `setTarget()` mid-flight keeps
-  the current velocity and smoothly redirects. `update(dt)`, `value()`,
-  `velocity()`, `isSettled()`, `snapTo()`.
+- **Spring**: `Spring<T>` — physics-based (stiffness/damping derived from a
+  duration + bounce), **interruptible** — `setTarget()` mid-flight keeps the
+  current velocity and smoothly redirects. `update(dt)`, `value()`, `velocity()`,
+  `isSettled()`, `snapTo()`. Works for scalars and vectors; `Quat` is excluded
+  (rotation springs need an angular-velocity formulation).
 - **Tooling**: doctest-based unit tests with good coverage, clang-format config,
   and CI (format check + build).
 
-Capability boundary: the engine can only drive a **single scalar**, in a
-**single animation**, with the **caller manually reading the value and applying
-it**, and **manually managing each tween's lifecycle**.
+All of `Tween` / `Curve` / `Spring` are templated over the value type, so they
+drive `float`, `Vec3`, `Color`, and (for Tween/Curve) `Quat` — with `float` the
+default via CTAD and convenience aliases (`TweenFloat`, `CurveVec3`, …).
 
-Rough completion estimate against a full-featured engine: **~25–30%**. The
-foundation (math, single-value tween, an interruptible spring, test/build
-tooling) is solid; the "engine" layers (sequencing, playback control,
-multi-type values, target binding, a central manager) are essentially empty.
+Capability boundary: the engine drives **one value** per animation, in a
+**single animation**, with the **caller manually reading the value and applying
+it**, and **manually managing each animation's lifecycle**. Multi-value *types*
+are done; the missing "engine" layers are sequencing, playback control, target
+binding, and a central manager.
+
+Rough completion estimate against a full-featured engine: **~35%**. The
+foundation (easing math, multi-value tween/curve, an interruptible spring,
+slerp, test/build tooling) is solid; the composition/playback/management layers
+are still empty.
 
 ## Gap analysis
 
 ### Tier 1 — Core gaps (without these it is a math library, not an engine)
 
-1. **Multi-value type support.** Only `float` today. UI/games need `vec2`,
-   `vec3`, `vec4`, **color** (with correct color-space interpolation),
-   **quaternion rotation** (slerp, not linear lerp), int, and bool. Requires a
-   generic / templated value type with per-type `lerp` specializations. Largest
-   surface-area gap.
+1. **Multi-value type support.** ✅ **Implemented.** `Tween` / `Curve` / `Spring`
+   are templated over the value type, with a generic `lerp<T>` customization
+   point. Built-in `Vec3`, `Color`, `Quat` ship today, and `Quat` interpolates
+   via **slerp** (shortest-arc, unit-length-preserving). Users can plug their own
+   type by overloading `lerp` (and `magnitudeSquared` for `Spring`). Remaining
+   follow-ups: more built-ins (`vec2`/`vec4`/`int`/`bool`) and correct
+   color-space interpolation (currently linear per-channel, see the `Color` TODO).
 
 2. **Timeline / sequencing.** Today there is only a single tween. Real use
    almost always composes animations:
@@ -89,9 +103,11 @@ multi-type values, target binding, a central manager) are essentially empty.
    SwiftUI, React Spring, and Framer Motion all treat spring dynamics
    (stiffness / damping / mass) as the default UI motion model. AnimEngine's
    `Spring` is **interruptible / re-targetable** — when the target changes
-   mid-flight, velocity is preserved for a smooth transition. Remaining
-   follow-ups: expose an explicit `mass` parameter, and generalize the spring to
-   the multi-value types from gap #1.
+   mid-flight, velocity is preserved for a smooth transition. Now generalized to
+   the multi-value types (`Spring<Vec3>` etc.; `Quat` excluded). Remaining
+   follow-up (optional): a `fromCoefficients(stiffness, damping, mass)` entry for
+   Unreal/react-spring-style physical parameterization — mass only has an effect
+   there, not in the duration/bounce model (SwiftUI/Flutter fix mass at 1).
 
 10. **Easing function completeness.** The full Penner set (~30+:
     cubic / quart / quint / sine / expo / circ / back / elastic / bounce, each in
@@ -110,8 +126,8 @@ multi-type values, target binding, a central manager) are essentially empty.
 
 If the goal is "genuinely usable in UI and game engines":
 
-1. **Multi-value types** — templated Tween/Curve + lerp/slerp for vec/color/quat
-   → opens up the usable surface.
+1. ~~**Multi-value types**~~ (done) — templated Tween/Curve/Spring + lerp/slerp
+   for vec/color/quat.
 2. **Playback control + callbacks** — loop/yoyo/pause/seek + onComplete
    → makes a single animation pleasant.
 3. **Timeline sequencing** — sequence/parallel/delay/stagger
