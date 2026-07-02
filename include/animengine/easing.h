@@ -11,6 +11,8 @@ enum class Easing {
     EaseInOut,
 };
 
+[[nodiscard]] float easeShape(Easing easing, float t);
+
 [[nodiscard]] float stepStart(float start, float end, float t);
 [[nodiscard]] float stepEnd(float start, float end, float t);
 [[nodiscard]] float linear(float start, float end, float t);
