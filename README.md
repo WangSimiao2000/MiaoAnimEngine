@@ -11,6 +11,8 @@ See [AnimEngineDemo](https://github.com/WangSimiao2000/AnimEngineDemo) for runna
 - Keyframe Interpolation
 - Curve Evaluation
 - Easing Functions (StepStart, StepEnd, Linear, EaseIn, EaseOut, EaseInOut)
+- Tween (single-value from→to over a duration, with easing)
+- Spring (physics-based, interruptible / re-targetable with velocity continuity)
 
 ### Planned
 

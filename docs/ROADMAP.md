@@ -6,8 +6,8 @@ engines (think DOTween, GSAP, Framer Motion, SwiftUI animations).
 
 ## Current state
 
-AnimEngine is currently a **easing-math + single-value tween** library — a
-solid foundation, but only the lowest layer of a real animation engine.
+AnimEngine is currently an **easing-math + single-value tween/spring** library
+— a solid foundation, but only the lowest layer of a real animation engine.
 
 Implemented:
 
@@ -18,6 +18,10 @@ Implemented:
   to its *left* keyframe's easing mode (linear / step today).
 - **Tween**: a single `float` from→to over a duration, with easing,
   `update(dt)`, `reset()`, `value()`, `elapsed()`, `duration()`, `isFinished()`.
+- **Spring**: physics-based single-`float` animation (stiffness/damping derived
+  from a duration + bounce), **interruptible** — `setTarget()` mid-flight keeps
+  the current velocity and smoothly redirects. `update(dt)`, `value()`,
+  `velocity()`, `isSettled()`, `snapTo()`.
 - **Tooling**: doctest-based unit tests with good coverage, clang-format config,
   and CI (format check + build).
 
@@ -25,10 +29,10 @@ Capability boundary: the engine can only drive a **single scalar**, in a
 **single animation**, with the **caller manually reading the value and applying
 it**, and **manually managing each tween's lifecycle**.
 
-Rough completion estimate against a full-featured engine: **~20–25%**. The
-foundation (math, single-value tween, test/build tooling) is solid; the
-"engine" layers (sequencing, playback control, multi-type values, target
-binding, a central manager) are essentially empty.
+Rough completion estimate against a full-featured engine: **~25–30%**. The
+foundation (math, single-value tween, an interruptible spring, test/build
+tooling) is solid; the "engine" layers (sequencing, playback control,
+multi-type values, target binding, a central manager) are essentially empty.
 
 ## Gap analysis
 
@@ -81,11 +85,13 @@ binding, a central manager) are essentially empty.
    `CUBICSPLINE`), with tangent modes (auto / flat / free / weighted) for
    C1-continuous, editable curves. Already noted as a TODO in `curve.h`.
 
-9. **Spring / physics-based animation.** SwiftUI, React Spring, and Framer
-   Motion all treat spring dynamics (stiffness / damping / mass) as the default
-   UI motion model. This pairs with **interruptible / re-targetable**
-   animations — when the target changes mid-flight, velocity is preserved for a
-   smooth transition. This is the watershed for modern UI motion.
+9. **Spring / physics-based animation.** ✅ **Implemented** (see `spring.h`).
+   SwiftUI, React Spring, and Framer Motion all treat spring dynamics
+   (stiffness / damping / mass) as the default UI motion model. AnimEngine's
+   `Spring` is **interruptible / re-targetable** — when the target changes
+   mid-flight, velocity is preserved for a smooth transition. Remaining
+   follow-ups: expose an explicit `mass` parameter, and generalize the spring to
+   the multi-value types from gap #1.
 
 10. **Easing function completeness.** The full Penner set (~30+:
     cubic / quart / quint / sine / expo / circ / back / elastic / bounce, each in
@@ -112,6 +118,6 @@ If the goal is "genuinely usable in UI and game engines":
    → upgrades from "tween" to "engine".
 4. **Manager + target binding** — central update + property write-back
    → makes it production-usable.
-5. **Spring + interruptible** and **cubic curves** (the `curve.h` TODO)
-   → matches modern top-tier engines.
+5. ~~**Spring + interruptible**~~ (done) and **cubic curves** (the `curve.h`
+   TODO) → matches modern top-tier engines.
 6. **Data-driven / performance** → productization.

@@ -81,9 +81,14 @@ wrapped in D's personality.**
 
 ### First milestone if choosing A
 
+**Status: achieved.** Steps 1 and 2 below are done — `Spring` ships as an
+interruptible peer to `Tween`, and the raylib demo shows the Tween-vs-Spring
+re-targeting contrast side by side.
+
 1. Add a `Spring` integrator (stiffness / damping / mass plus current
-   value/velocity state), as a peer to `Tween`.
+   value/velocity state), as a peer to `Tween`. ✅ *(mass not yet exposed)*
 2. Add a demo scene: click a target point, the cube chases it with momentum, and
-   changing the target mid-flight does **not** restart the motion.
+   changing the target mid-flight does **not** restart the motion. ✅ *(SPACE
+   flips the shared target; RED Tween restarts, BLUE Spring keeps momentum)*
 3. Once this works, the engine's character is already visibly different from
-   off-the-shelf C++ tween libraries.
+   off-the-shelf C++ tween libraries. ✅
