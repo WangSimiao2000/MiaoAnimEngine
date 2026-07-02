@@ -4,7 +4,7 @@
 
 #include "doctest.h"
 
-using animengine::Spring;
+using Spring = animengine::Spring<float>;
 
 namespace {
 
