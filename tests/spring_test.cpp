@@ -1,6 +1,7 @@
 #include "animengine/spring.h"
 
 #include <cmath>
+#include <stdexcept>
 
 #include "doctest.h"
 
@@ -24,6 +25,11 @@ TEST_CASE("spring starts at rest at its initial value") {
     CHECK(spring.value() == doctest::Approx(3.0f));
     CHECK(spring.velocity() == doctest::Approx(0.0f));
     CHECK(spring.isSettled());
+}
+
+TEST_CASE("spring rejects non-positive duration") {
+    CHECK_THROWS_AS(Spring(0.0f, 0.0f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(-0.5f, 0.0f), std::invalid_argument);
 }
 
 TEST_CASE("critically damped spring converges to the target without overshoot") {

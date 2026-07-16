@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 #include "math.h"
 
 namespace animengine {
@@ -27,6 +29,10 @@ public:
           _target(initialValue),
           _restDisplacementThreshold(0.01f),
           _restVelocityThreshold(0.01f) {
+        if (duration <= 0.0f) {
+            throw std::invalid_argument("Spring duration must be greater than zero");
+        }
+
         constexpr float pi = 3.14159265f;
         const float zeta = bounce >= 0 ? (1 - bounce) : 1 / (1 + bounce);
         const float omega = 2 * pi / duration;
