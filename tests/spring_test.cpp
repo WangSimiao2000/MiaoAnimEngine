@@ -89,7 +89,7 @@ TEST_CASE("isSettled is false while moving and true after it comes to rest") {
     CHECK(spring.isSettled());  // has come to rest at the target
 }
 
-TEST_CASE("snapTo jumps to a value and clears the velocity") {
+TEST_CASE("snapTo settles at a value and remains there") {
     Spring spring(0.5f, 0.0f, 0.0f);
     spring.setTarget(10.0f);
     advance(spring, 0.05f);
@@ -99,6 +99,14 @@ TEST_CASE("snapTo jumps to a value and clears the velocity") {
 
     CHECK(spring.value() == doctest::Approx(5.0f));
     CHECK(spring.velocity() == doctest::Approx(0.0f));
+    CHECK(spring.isSettled());
+
+    // Advancing another frame must not resume motion toward the old target.
+    spring.update(1.0f / 60.0f);
+
+    CHECK(spring.value() == doctest::Approx(5.0f));
+    CHECK(spring.velocity() == doctest::Approx(0.0f));
+    CHECK(spring.isSettled());
 }
 
 TEST_CASE("initial velocity is respected") {

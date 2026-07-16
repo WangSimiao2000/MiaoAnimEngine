@@ -61,6 +61,7 @@ public:
 
     void snapTo(T value) {
         _value = value;
+        _target = value;
         _velocity = T{};
     }
 
