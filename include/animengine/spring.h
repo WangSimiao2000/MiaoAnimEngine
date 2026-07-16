@@ -32,6 +32,9 @@ public:
         if (duration <= 0.0f) {
             throw std::invalid_argument("Spring duration must be greater than zero");
         }
+        if (bounce <= -1.0f || bounce >= 1.0f) {
+            throw std::invalid_argument("Spring bounce must be greater than -1 and less than 1");
+        }
 
         constexpr float pi = 3.14159265f;
         const float zeta = bounce >= 0 ? (1 - bounce) : 1 / (1 + bounce);

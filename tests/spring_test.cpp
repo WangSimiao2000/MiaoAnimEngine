@@ -32,6 +32,19 @@ TEST_CASE("spring rejects non-positive duration") {
     CHECK_THROWS_AS(Spring(-0.5f, 0.0f), std::invalid_argument);
 }
 
+TEST_CASE("spring accepts bounce inside the settling range") {
+    CHECK_NOTHROW(Spring(0.5f, -0.5f));
+    CHECK_NOTHROW(Spring(0.5f, 0.0f));
+    CHECK_NOTHROW(Spring(0.5f, 0.6f));
+}
+
+TEST_CASE("spring rejects bounce outside the settling range") {
+    CHECK_THROWS_AS(Spring(0.5f, -1.0f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, -1.1f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, 1.0f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, 1.1f), std::invalid_argument);
+}
+
 TEST_CASE("critically damped spring converges to the target without overshoot") {
     // bounce == 0  ->  damping ratio == 1  ->  no oscillation.
     Spring spring(0.5f, 0.0f, 0.0f);
