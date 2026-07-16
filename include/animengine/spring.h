@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <stdexcept>
 
 #include "math.h"
@@ -29,11 +30,11 @@ public:
           _target(initialValue),
           _restDisplacementThreshold(0.01f),
           _restVelocityThreshold(0.01f) {
-        if (duration <= 0.0f) {
-            throw std::invalid_argument("Spring duration must be greater than zero");
+        if (!std::isfinite(duration) || duration <= 0.0f) {
+            throw std::invalid_argument("Spring duration must be finite and greater than zero");
         }
-        if (bounce <= -1.0f || bounce >= 1.0f) {
-            throw std::invalid_argument("Spring bounce must be greater than -1 and less than 1");
+        if (!std::isfinite(bounce) || bounce <= -1.0f || bounce >= 1.0f) {
+            throw std::invalid_argument("Spring bounce must be finite and in (-1, 1)");
         }
 
         constexpr float pi = 3.14159265f;
@@ -45,6 +46,13 @@ public:
     }
 
     void update(float dt) {
+        if (!std::isfinite(dt) || dt < 0.0f) {
+            throw std::invalid_argument("Spring delta time must be finite and non-negative");
+        }
+        if (dt == 0.0f) {
+            return;
+        }
+
         const T acceleration = (_target - _value) * _stiffness - _velocity * _damping;
         _velocity = _velocity + acceleration * dt;
         _value = _value + _velocity * dt;

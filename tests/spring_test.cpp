@@ -1,6 +1,7 @@
 #include "animengine/spring.h"
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #include "doctest.h"
@@ -32,6 +33,15 @@ TEST_CASE("spring rejects non-positive duration") {
     CHECK_THROWS_AS(Spring(-0.5f, 0.0f), std::invalid_argument);
 }
 
+TEST_CASE("spring rejects non-finite duration") {
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    const float infinity = std::numeric_limits<float>::infinity();
+
+    CHECK_THROWS_AS(Spring(nan, 0.0f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(infinity, 0.0f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(-infinity, 0.0f), std::invalid_argument);
+}
+
 TEST_CASE("spring accepts bounce inside the settling range") {
     CHECK_NOTHROW(Spring(0.5f, -0.5f));
     CHECK_NOTHROW(Spring(0.5f, 0.0f));
@@ -43,6 +53,36 @@ TEST_CASE("spring rejects bounce outside the settling range") {
     CHECK_THROWS_AS(Spring(0.5f, -1.1f), std::invalid_argument);
     CHECK_THROWS_AS(Spring(0.5f, 1.0f), std::invalid_argument);
     CHECK_THROWS_AS(Spring(0.5f, 1.1f), std::invalid_argument);
+}
+
+TEST_CASE("spring rejects non-finite bounce") {
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    const float infinity = std::numeric_limits<float>::infinity();
+
+    CHECK_THROWS_AS(Spring(0.5f, nan), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, infinity), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, -infinity), std::invalid_argument);
+}
+
+TEST_CASE("update rejects invalid delta time") {
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    const float infinity = std::numeric_limits<float>::infinity();
+
+    CHECK_THROWS_AS(Spring(0.5f, 0.0f).update(-0.01f), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, 0.0f).update(nan), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, 0.0f).update(infinity), std::invalid_argument);
+    CHECK_THROWS_AS(Spring(0.5f, 0.0f).update(-infinity), std::invalid_argument);
+}
+
+TEST_CASE("update with zero delta time leaves state unchanged") {
+    Spring spring(0.5f, 0.6f, 2.0f, 3.0f);
+    spring.setTarget(10.0f);
+    const float valueBefore = spring.value();
+    const float velocityBefore = spring.velocity();
+
+    CHECK_NOTHROW(spring.update(0.0f));
+    CHECK(spring.value() == doctest::Approx(valueBefore));
+    CHECK(spring.velocity() == doctest::Approx(velocityBefore));
 }
 
 TEST_CASE("critically damped spring converges to the target without overshoot") {
